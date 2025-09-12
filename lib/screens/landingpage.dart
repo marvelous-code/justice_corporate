@@ -66,11 +66,11 @@ class _LandingpageState extends State<Landingpage> {
   Widget build(BuildContext context) {
     Size screenSize = MediaQuery.of(context).size;
     final PageController _controller = PageController(
-      viewportFraction: screenSize.width > 600 ? 0.5 : 1,
+      viewportFraction: screenSize.width > 800 ? 0.5 : 1,
     );
     final PageController _controller1 = PageController();
     final PageController _controller2 = PageController(
-      viewportFraction: screenSize.width > 600 ? 0.5 : 1,
+      viewportFraction: screenSize.width > 800 ? 0.5 : 1,
     );
     return SafeArea(
       child: Scaffold(

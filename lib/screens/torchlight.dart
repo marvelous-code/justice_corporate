@@ -124,7 +124,7 @@ class _TorchlightState extends State<Torchlight> {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (screenSize.width > 600)
+                  if (screenSize.width > 800)
                     Expanded(
                       flex: 1,
                       child: Container(
@@ -241,7 +241,7 @@ class _TorchlightState extends State<Torchlight> {
                         ),
                       ),
                     ),
-                  if (screenSize.width > 600)
+                  if (screenSize.width > 800)
                     Container(
                       height: double.infinity,
                       color: Colors.black,
@@ -251,7 +251,7 @@ class _TorchlightState extends State<Torchlight> {
                     flex: 3,
                     child: Column(
                       children: [
-                        if (screenSize.width < 600)
+                        if (screenSize.width < 800)
                           ElevatedButton.icon(
                             icon: Icon(
                               _showInventory
@@ -270,7 +270,7 @@ class _TorchlightState extends State<Torchlight> {
                             },
                           ),
 
-                        if (screenSize.width < 600 && _showInventory)
+                        if (screenSize.width < 800 && _showInventory)
                           Expanded(
                             // 👈 give inventory scrollable space
                             child: SingleChildScrollView(
@@ -435,7 +435,7 @@ class ProductsGrid extends StatelessWidget {
 
         return GridView.builder(
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: screenSize.width > 600 ? 3 : 1,
+            crossAxisCount: screenSize.width > 800 ? 3 : 1,
             crossAxisSpacing: 10,
             mainAxisSpacing: 10,
             childAspectRatio: 0.7,
