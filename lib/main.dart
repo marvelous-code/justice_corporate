@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:justicecorporate/screens/aboutus.dart';
+import 'package:justicecorporate/screens/batteries.dart';
 import 'package:justicecorporate/screens/landingpage.dart';
 import 'package:justicecorporate/screens/menu.dart';
+import 'package:justicecorporate/screens/rechargeable_fans.dart';
+import 'package:justicecorporate/screens/solar_panels.dart';
 import 'package:justicecorporate/screens/torchlight.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -27,6 +30,9 @@ class MainApp extends StatelessWidget {
         '/': (context) => Landingpage(),
         '/aboutus': (context) => Aboutus(),
         '/torchlight': (context) => Torchlight(),
+        '/solarpanels': (context) => SolarPanels(),
+        '/batteries': (context) => Batteries(),
+        '/recharge': (context) => RechargeableFans(),
         '/menu': (context) => Menu(),
       },
     );

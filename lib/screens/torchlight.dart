@@ -4,7 +4,7 @@ import 'package:justicecorporate/ui/reused_widgets.dart';
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Torchlight extends StatefulWidget {
@@ -115,7 +115,7 @@ class _TorchlightState extends State<Torchlight> {
         body: Column(
           children: [
             // Header Widget
-            HeaderWidget(screenSize: screenSize),
+            Header(screenSize: screenSize),
             //Page Title
             Text('TORCH LIGHT'),
 
