@@ -1,0 +1,22 @@
+{
+    "flutter": {
+        "platforms": {
+            "android": {
+                "default": {
+                    "projectId": "justicecooporate",
+                    "appId": "1:863957161247:android:17a995cb6dfbff6144cc2a",
+                    "fileOutput": "android/app/google-services.json"
+                }
+            },
+            "dart": {
+                "lib/firebase_options.dart": {
+                    "projectId": "justicecooporate",
+                    "configurations": {
+                        "android": "1:863957161247:android:17a995cb6dfbff6144cc2a",
+                        "web": "1:863957161247:web:12de0853eae2c28744cc2a"
+                    }
+                }
+            }
+        }
+    }
+}

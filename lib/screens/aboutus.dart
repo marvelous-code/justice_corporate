@@ -93,12 +93,36 @@ class _AboutusState extends State<Aboutus> {
                 height: 300,
                 child: Row(
                   children: [
-                    SizedBox(width: 10),
+                    Expanded(flex: 5, child: SizedBox(width: 10)),
                     Expanded(
-                      flex: 1,
-                      child: Text('About Justice Coporate Marketing Limited'),
+                      flex: 5,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            padding: EdgeInsets.symmetric(
+                              vertical: 12,
+                              horizontal: 12,
+                            ),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(12),
+                              color: Colors.greenAccent,
+                            ),
+                            child: Text(
+                              'About Justice Coporate Marketing Limited',
+                              style: TextStyle(fontSize: 12),
+                            ),
+                          ),
+                          Text(
+                            'Experience the best in Electronics Excellence',
+                            style: TextStyle(fontSize: 32),
+                          ),
+                        ],
+                      ),
                     ),
                     Expanded(
+                      flex: 10,
                       child: Container(
                         alignment: Alignment.center,
                         child: Text(

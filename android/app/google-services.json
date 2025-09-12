@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "863957161247",
+    "project_id": "justicecooporate",
+    "storage_bucket": "justicecooporate.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:863957161247:android:17a995cb6dfbff6144cc2a",
+        "android_client_info": {
+          "package_name": "com.example.justicecorporate"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAyVu2j0uhhhdq326QVGYJTUyJ4q6mao9g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
