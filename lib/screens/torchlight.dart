@@ -1,10 +1,9 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:justicecorporate/functions/upload_function.dart';
 import 'package:justicecorporate/ui/reused_widgets.dart';
 import 'dart:convert';
-import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Torchlight extends StatefulWidget {
@@ -17,7 +16,8 @@ class Torchlight extends StatefulWidget {
 class _TorchlightState extends State<Torchlight> {
   final TextEditingController _controller = TextEditingController();
   List<String> _torchLightBrands = [];
-  bool _showInventory = false; // ✅ toggles visibility
+  bool isClicked = false;
+  bool isHovered = false;
 
   final _formKey = GlobalKey<FormState>();
 
@@ -112,12 +112,16 @@ class _TorchlightState extends State<Torchlight> {
 
     return SafeArea(
       child: Scaffold(
+        backgroundColor: Colors.white,
         body: Column(
           children: [
             // Header Widget
             Header(screenSize: screenSize),
             //Page Title
-            Text('TORCH LIGHT'),
+            Text(
+              'Torch Light',
+              style: TextStyle(fontSize: 32, fontWeight: FontWeight.w300),
+            ),
 
             // Body with inventory + divider + grid
             Expanded(
@@ -130,154 +134,269 @@ class _TorchlightState extends State<Torchlight> {
                       child: Container(
                         height: 1000,
                         child: SingleChildScrollView(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              Text('INVENTORY'),
-                              SizedBox(height: 3),
-                              SizedBox(
-                                height: 300,
-                                child: ListView.builder(
-                                  shrinkWrap: true,
-                                  itemCount: _torchLightBrands.length,
-                                  itemBuilder: (context, index) {
-                                    final torchBrand = _torchLightBrands[index];
-                                    return ListTile(
-                                      title: Text(torchBrand),
-                                      leading: Radio<String>(
-                                        fillColor: WidgetStateProperty.all(
-                                          Colors.black,
-                                        ),
-                                        value: torchBrand,
-                                        groupValue: selectedOption,
-                                        onChanged: (value) {
-                                          setState(() {
-                                            selectedOption = value;
-                                          });
-                                        },
-                                      ),
-                                      onTap: () {
-                                        setState(() {
-                                          selectedOption = torchBrand;
-                                          print(selectedOption);
-                                        });
-                                      },
-                                    );
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                MouseRegion(
+                                  onEnter: (_) {
+                                    setState(() {
+                                      isHovered = !isHovered;
+                                    });
                                   },
-                                ),
-                              ),
-                              Column(
-                                children: [
-                                  TextField(
-                                    controller: _controller,
-                                    decoration: InputDecoration(
-                                      labelText: "Enter brand",
-                                      border: OutlineInputBorder(),
+                                  onExit: (_) {
+                                    setState(() {
+                                      isHovered = !isHovered;
+                                    });
+                                  },
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      setState(() {
+                                        isClicked = !isClicked;
+                                      });
+                                    },
+                                    child: AnimatedContainer(
+                                      padding: EdgeInsets.symmetric(
+                                        vertical: 5,
+                                        horizontal: 5,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color:
+                                            isHovered
+                                                ? Colors.grey.shade400
+                                                : Colors.transparent,
+                                        border: Border.all(width: 1),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      duration: Duration(milliseconds: 400),
+
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            selectedOption ??
+                                                'TorchLight Brands',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              letterSpacing: 1,
+                                              fontSize: 14,
+                                            ),
+                                          ),
+                                          SizedBox(width: 100),
+                                          Transform.rotate(
+                                            angle:
+                                                isClicked
+                                                    ? math.pi / 2
+                                                    : math.pi * 1.5,
+                                            child: Icon(
+                                              Icons.arrow_back_ios,
+                                              size: 15,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ),
-                                  const SizedBox(height: 10),
-                                  ElevatedButton(
-                                    onPressed: _addItem,
-                                    child: Text("Add TorchLight Brand"),
-                                  ),
-                                  const SizedBox(height: 20),
-                                ],
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.all(16.0),
-                                child: Form(
-                                  key: _formKey,
-                                  child: Column(
-                                    children: [
-                                      TextFormField(
-                                        controller: _productNameController,
-                                        decoration: InputDecoration(
-                                          labelText: "Product Name",
-                                        ),
-                                        validator:
-                                            (value) =>
-                                                value == null || value.isEmpty
-                                                    ? "Enter product name"
-                                                    : null,
-                                      ),
-                                      const SizedBox(height: 10),
-                                      TextFormField(
-                                        controller: _unitsController,
-                                        decoration: InputDecoration(
-                                          labelText: "No. of Units in Carton",
-                                        ),
-                                        validator:
-                                            (value) =>
-                                                value == null || value.isEmpty
-                                                    ? "Enter units"
-                                                    : null,
-                                      ),
-                                      const SizedBox(height: 10),
-                                      TextFormField(
-                                        controller: _availabilityController,
-                                        decoration: InputDecoration(
-                                          labelText: "Availability",
-                                        ),
-                                        validator:
-                                            (value) =>
-                                                value == null || value.isEmpty
-                                                    ? "Enter availability"
-                                                    : null,
-                                      ),
-                                      const SizedBox(height: 20),
-                                      ElevatedButton(
-                                        onPressed: () {
-                                          _addProduct();
-                                        },
-                                        child: Text("Add Product"),
-                                      ),
-                                      const SizedBox(height: 20),
-                                    ],
-                                  ),
                                 ),
-                              ),
-                            ],
+
+                                SizedBox(height: 3),
+                                if (isClicked)
+                                  SizedBox(
+                                    height: 300,
+                                    child: ListView.builder(
+                                      shrinkWrap: true,
+                                      itemCount: _torchLightBrands.length,
+                                      itemBuilder: (context, index) {
+                                        final torchBrand =
+                                            _torchLightBrands[index];
+                                        return ListTile(
+                                          contentPadding: EdgeInsets.all(0),
+                                          title: Text(torchBrand),
+                                          leading: Radio<String>(
+                                            fillColor: WidgetStateProperty.all(
+                                              Colors.black,
+                                            ),
+                                            value: torchBrand,
+                                            groupValue: selectedOption,
+                                            onChanged: (value) {
+                                              setState(() {
+                                                selectedOption = value;
+                                              });
+                                            },
+                                          ),
+                                          onTap: () {
+                                            setState(() {
+                                              selectedOption = torchBrand;
+                                              print(selectedOption);
+                                            });
+                                          },
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                Column(
+                                  children: [
+                                    TextField(
+                                      controller: _controller,
+                                      decoration: InputDecoration(
+                                        labelText: "Enter brand",
+                                        border: OutlineInputBorder(),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 10),
+                                    ElevatedButton(
+                                      onPressed: _addItem,
+                                      child: const Text("Add TorchLight Brand"),
+                                    ),
+                                    const SizedBox(height: 20),
+                                    Padding(
+                                      padding: const EdgeInsets.all(16.0),
+                                      child: Form(
+                                        key: _formKey,
+                                        child: Column(
+                                          children: [
+                                            TextFormField(
+                                              controller:
+                                                  _productNameController,
+                                              decoration: InputDecoration(
+                                                labelText: "Product Name",
+                                              ),
+                                              validator:
+                                                  (value) =>
+                                                      value == null ||
+                                                              value.isEmpty
+                                                          ? "Enter product name"
+                                                          : null,
+                                            ),
+                                            const SizedBox(height: 10),
+                                            TextFormField(
+                                              controller: _unitsController,
+                                              decoration: InputDecoration(
+                                                labelText:
+                                                    "No. of Units in Carton",
+                                              ),
+                                              validator:
+                                                  (value) =>
+                                                      value == null ||
+                                                              value.isEmpty
+                                                          ? "Enter units"
+                                                          : null,
+                                            ),
+                                            const SizedBox(height: 10),
+                                            TextFormField(
+                                              controller:
+                                                  _availabilityController,
+                                              decoration: InputDecoration(
+                                                labelText: "Availability",
+                                              ),
+                                              validator:
+                                                  (value) =>
+                                                      value == null ||
+                                                              value.isEmpty
+                                                          ? "Enter availability"
+                                                          : null,
+                                            ),
+                                            const SizedBox(height: 20),
+                                            ElevatedButton(
+                                              onPressed: _addProduct,
+                                              child: const Text("Add Product"),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),
                     ),
                   if (screenSize.width > 800)
-                    Container(
-                      height: double.infinity,
-                      color: Colors.black,
-                      width: 2,
-                    ),
+                    Divider(thickness: 1, height: double.maxFinite),
+                  Container(
+                    height: double.infinity,
+                    color: Colors.black,
+                    width: 2,
+                  ),
                   Expanded(
                     flex: 3,
                     child: Column(
                       children: [
                         if (screenSize.width < 800)
-                          ElevatedButton.icon(
-                            icon: Icon(
-                              _showInventory
-                                  ? Icons.keyboard_arrow_up
-                                  : Icons.keyboard_arrow_down,
-                            ),
-                            label: Text(
-                              _showInventory
-                                  ? "Hide Inventory"
-                                  : "Show Inventory",
-                            ),
-                            onPressed: () {
+                          MouseRegion(
+                            onEnter: (_) {
                               setState(() {
-                                _showInventory = !_showInventory;
+                                isHovered = !isHovered;
                               });
                             },
+                            onExit: (_) {
+                              setState(() {
+                                isHovered = !isHovered;
+                              });
+                            },
+                            child: GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  isClicked = !isClicked;
+                                });
+                              },
+                              child: AnimatedContainer(
+                                padding: EdgeInsets.symmetric(
+                                  vertical: 5,
+                                  horizontal: 5,
+                                ),
+                                decoration: BoxDecoration(
+                                  color:
+                                      isHovered
+                                          ? Colors.grey.shade400
+                                          : Colors.transparent,
+                                  border: Border.all(width: 1),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                duration: Duration(milliseconds: 400),
+
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      selectedOption ?? 'TorchLight Brands',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        letterSpacing: 1,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                    SizedBox(width: 100),
+                                    Transform.rotate(
+                                      angle:
+                                          isClicked
+                                              ? math.pi / 2
+                                              : math.pi * 1.5,
+                                      child: Icon(
+                                        Icons.arrow_back_ios,
+                                        size: 15,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
                           ),
 
-                        if (screenSize.width < 800 && _showInventory)
+                        if (screenSize.width < 800 && isClicked)
                           Expanded(
                             // 👈 give inventory scrollable space
                             child: SingleChildScrollView(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  const Text('INVENTORY'),
                                   const SizedBox(height: 3),
                                   ListView.builder(
                                     shrinkWrap: true,
@@ -312,74 +431,86 @@ class _TorchlightState extends State<Torchlight> {
                                   ),
                                   const SizedBox(height: 10),
                                   // input + add button
-                                  TextField(
-                                    controller: _controller,
-                                    decoration: InputDecoration(
-                                      labelText: "Enter brand",
-                                      border: OutlineInputBorder(),
+                                  if (!kIsWeb)
+                                    Column(
+                                      children: [
+                                        TextField(
+                                          controller: _controller,
+                                          decoration: InputDecoration(
+                                            labelText: "Enter brand",
+                                            border: OutlineInputBorder(),
+                                          ),
+                                        ),
+                                        const SizedBox(height: 10),
+                                        ElevatedButton(
+                                          onPressed: _addItem,
+                                          child: const Text(
+                                            "Add TorchLight Brand",
+                                          ),
+                                        ),
+                                        const SizedBox(height: 20),
+                                        Padding(
+                                          padding: const EdgeInsets.all(16.0),
+                                          child: Form(
+                                            key: _formKey,
+                                            child: Column(
+                                              children: [
+                                                TextFormField(
+                                                  controller:
+                                                      _productNameController,
+                                                  decoration: InputDecoration(
+                                                    labelText: "Product Name",
+                                                  ),
+                                                  validator:
+                                                      (value) =>
+                                                          value == null ||
+                                                                  value.isEmpty
+                                                              ? "Enter product name"
+                                                              : null,
+                                                ),
+                                                const SizedBox(height: 10),
+                                                TextFormField(
+                                                  controller: _unitsController,
+                                                  decoration: InputDecoration(
+                                                    labelText:
+                                                        "No. of Units in Carton",
+                                                  ),
+                                                  validator:
+                                                      (value) =>
+                                                          value == null ||
+                                                                  value.isEmpty
+                                                              ? "Enter units"
+                                                              : null,
+                                                ),
+                                                const SizedBox(height: 10),
+                                                TextFormField(
+                                                  controller:
+                                                      _availabilityController,
+                                                  decoration: InputDecoration(
+                                                    labelText: "Availability",
+                                                  ),
+                                                  validator:
+                                                      (value) =>
+                                                          value == null ||
+                                                                  value.isEmpty
+                                                              ? "Enter availability"
+                                                              : null,
+                                                ),
+                                                const SizedBox(height: 20),
+                                                ElevatedButton(
+                                                  onPressed: _addProduct,
+                                                  child: const Text(
+                                                    "Add Product",
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                  ),
-                                  const SizedBox(height: 10),
-                                  ElevatedButton(
-                                    onPressed: _addItem,
-                                    child: const Text("Add TorchLight Brand"),
-                                  ),
-                                  const SizedBox(height: 20),
+
                                   // form
-                                  Padding(
-                                    padding: const EdgeInsets.all(16.0),
-                                    child: Form(
-                                      key: _formKey,
-                                      child: Column(
-                                        children: [
-                                          TextFormField(
-                                            controller: _productNameController,
-                                            decoration: InputDecoration(
-                                              labelText: "Product Name",
-                                            ),
-                                            validator:
-                                                (value) =>
-                                                    value == null ||
-                                                            value.isEmpty
-                                                        ? "Enter product name"
-                                                        : null,
-                                          ),
-                                          const SizedBox(height: 10),
-                                          TextFormField(
-                                            controller: _unitsController,
-                                            decoration: InputDecoration(
-                                              labelText:
-                                                  "No. of Units in Carton",
-                                            ),
-                                            validator:
-                                                (value) =>
-                                                    value == null ||
-                                                            value.isEmpty
-                                                        ? "Enter units"
-                                                        : null,
-                                          ),
-                                          const SizedBox(height: 10),
-                                          TextFormField(
-                                            controller: _availabilityController,
-                                            decoration: InputDecoration(
-                                              labelText: "Availability",
-                                            ),
-                                            validator:
-                                                (value) =>
-                                                    value == null ||
-                                                            value.isEmpty
-                                                        ? "Enter availability"
-                                                        : null,
-                                          ),
-                                          const SizedBox(height: 20),
-                                          ElevatedButton(
-                                            onPressed: _addProduct,
-                                            child: const Text("Add Product"),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
                                 ],
                               ),
                             ),
@@ -438,7 +569,7 @@ class ProductsGrid extends StatelessWidget {
             crossAxisCount: screenSize.width > 800 ? 3 : 1,
             crossAxisSpacing: 10,
             mainAxisSpacing: 10,
-            childAspectRatio: 0.7,
+            //childAspectRatio: 0,
           ),
           itemCount: products.length,
           itemBuilder: (context, index) {
@@ -451,26 +582,30 @@ class ProductsGrid extends StatelessWidget {
             }
 
             return Card(
+              color: Colors.white,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
               elevation: 4,
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  ClipRRect(
-                    borderRadius: const BorderRadius.vertical(
-                      top: Radius.circular(12),
+                  Expanded(
+                    child: ClipRRect(
+                      borderRadius: const BorderRadius.vertical(
+                        top: Radius.circular(12),
+                      ),
+                      child:
+                          imageBytes != null
+                              ? Image.memory(
+                                imageBytes,
+                                fit: BoxFit.contain,
+
+                                width: double.maxFinite,
+                              )
+                              : const Icon(Icons.image_not_supported, size: 80),
                     ),
-                    child:
-                        imageBytes != null
-                            ? Image.memory(
-                              imageBytes,
-                              fit: BoxFit.contain,
-                              height: 200,
-                              width: 200,
-                            )
-                            : const Icon(Icons.image_not_supported, size: 80),
                   ),
                   Padding(
                     padding: const EdgeInsets.symmetric(
@@ -479,7 +614,8 @@ class ProductsGrid extends StatelessWidget {
                     ),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           product['productName'] ?? 'Unnamed',
@@ -488,28 +624,15 @@ class ProductsGrid extends StatelessWidget {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          "₦${product['price'] ?? '0'}",
+                          "${product['unitsInCarton'] ?? '0'}",
                           style: const TextStyle(
-                            color: Colors.green,
+                            color: Colors.black,
                             fontSize: 14,
                           ),
                         ),
-                        Container(
-                          height: 45,
-                          width: 200,
-                          decoration: BoxDecoration(
-                            color: Colors.greenAccent,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: TextButton(
-                            onPressed: () {
-                              // TODO: Add to cart logic
-                            },
-                            child: Text(
-                              product['availability'],
-                              style: TextStyle(color: Colors.white),
-                            ),
-                          ),
+                        Text(
+                          product['availability'],
+                          style: TextStyle(color: Colors.green),
                         ),
                       ],
                     ),
@@ -520,6 +643,66 @@ class ProductsGrid extends StatelessWidget {
           },
         );
       },
+    );
+  }
+}
+
+class HoverableClickableTile extends StatefulWidget {
+  final String label;
+  final VoidCallback? onTap;
+
+  const HoverableClickableTile({Key? key, required this.label, this.onTap})
+    : super(key: key);
+
+  @override
+  _HoverableClickableTileState createState() => _HoverableClickableTileState();
+}
+
+class _HoverableClickableTileState extends State<HoverableClickableTile> {
+  bool isHovered = false;
+  bool isClicked = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      onEnter: (_) => setState(() => isHovered = true),
+      onExit: (_) => setState(() => isHovered = false),
+      child: GestureDetector(
+        onTap: () {
+          setState(() {
+            isClicked = !isClicked;
+          });
+          if (widget.onTap != null) widget.onTap!();
+        },
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 400),
+          padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
+          decoration: BoxDecoration(
+            color: isHovered ? Colors.grey.shade400 : Colors.transparent,
+            border: Border.all(width: 1),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(
+                widget.label,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 1,
+                  fontSize: 14,
+                ),
+              ),
+              const SizedBox(width: 100),
+              Transform.rotate(
+                angle: isClicked ? math.pi / 2 : math.pi * 1.5,
+                child: const Icon(Icons.arrow_back_ios, size: 15),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

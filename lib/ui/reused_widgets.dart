@@ -1,10 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class Header extends StatelessWidget {
+class Header extends StatefulWidget {
   const Header({super.key, required this.screenSize});
 
   final Size screenSize;
+
+  @override
+  State<Header> createState() => _HeaderState();
+}
+
+class _HeaderState extends State<Header> {
+  bool _isHovered = false;
 
   @override
   Widget build(BuildContext context) {
@@ -23,12 +30,34 @@ class Header extends StatelessWidget {
             ),
           ),
 
-          screenSize.width < 900
-              ? IconButton(
-                onPressed: () {
-                  Navigator.pushNamed(context, '/menu');
-                },
-                icon: Icon(Icons.menu),
+          widget.screenSize.width < 900
+              ? MouseRegion(
+                onEnter: (_) => setState(() => _isHovered = true),
+                onExit: (_) => setState(() => _isHovered = false),
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.pushNamed(context, '/menu');
+                  },
+                  child: AnimatedContainer(
+                    duration: Duration(milliseconds: 200),
+                    padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8),
+                      color:
+                          _isHovered
+                              ? Colors.grey.shade400
+                              : Colors.grey.shade200,
+                    ),
+                    child: Text(
+                      'Menu',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ),
+                ),
               )
               : Expanded(
                 flex: 2,
@@ -81,7 +110,7 @@ class Header extends StatelessWidget {
                     ),
                     TextButton(
                       onPressed: () {
-                        Navigator.pushNamed(context, '/aboutus');
+                        // Navigator.pushNamed(context, '/aboutus');
                       },
                       child: Text(
                         'About Us',

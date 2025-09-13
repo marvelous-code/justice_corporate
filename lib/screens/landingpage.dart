@@ -283,7 +283,7 @@ class _LandingpageState extends State<Landingpage> {
                                               onPressed: () {
                                                 Navigator.pushNamed(
                                                   context,
-                                                  '/torchlight',
+                                                  '/solarpanels',
                                                 );
                                               },
                                               child: Text(
@@ -386,7 +386,7 @@ class _LandingpageState extends State<Landingpage> {
                                                 onPressed: () {
                                                   Navigator.pushNamed(
                                                     context,
-                                                    '/torchlight',
+                                                    '/recharge',
                                                   );
                                                 },
                                                 child: Text(
