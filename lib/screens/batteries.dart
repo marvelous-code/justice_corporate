@@ -36,7 +36,7 @@ class _BatteriesState extends State<Batteries> {
 
       try {
         // ✅ Call your upload function
-        await uploadImageWithData(selectedOption!, productData);
+        await uploadImageWithData('Batteries', selectedOption!, productData);
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("✅ Product uploaded with image")),

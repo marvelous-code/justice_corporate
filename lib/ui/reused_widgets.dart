@@ -108,15 +108,6 @@ class _HeaderState extends State<Header> {
                         style: TextStyle(color: Colors.black),
                       ),
                     ),
-                    TextButton(
-                      onPressed: () {
-                        // Navigator.pushNamed(context, '/aboutus');
-                      },
-                      child: Text(
-                        'About Us',
-                        style: TextStyle(color: Colors.black),
-                      ),
-                    ),
                   ],
                 ),
               ),

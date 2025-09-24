@@ -9,6 +9,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 /// Works the same on Web and Android/iOS.
 Future<void> uploadImageWithData(
   String collectionName,
+  String brand,
   Map<String, dynamic> data,
 ) async {
   final picker = ImagePicker();
@@ -40,7 +41,13 @@ Future<void> uploadImageWithData(
       "uploadedAt": FieldValue.serverTimestamp(),
     });
 
-    await FirebaseFirestore.instance.collection(collectionName).add(data);
+    //await FirebaseFirestore.instance.collection(collectionName).add(data);
+    await FirebaseFirestore.instance
+        .collection(collectionName)
+        .doc(brand)
+        .collection('products')
+        .add(data);
+
     print("✅ Uploaded to Firestore (base64 for all platforms)");
   } catch (e) {
     print("❌ Upload failed: $e");

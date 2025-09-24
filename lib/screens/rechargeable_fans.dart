@@ -6,6 +6,8 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+String productName = 'R fans';
+
 class RechargeableFans extends StatefulWidget {
   const RechargeableFans({super.key});
 
@@ -15,6 +17,7 @@ class RechargeableFans extends StatefulWidget {
 
 class _RechargeableFansState extends State<RechargeableFans> {
   final TextEditingController _controller = TextEditingController();
+  String productName = 'R fans';
   List<String> _rfansBrands = [];
   bool isClicked = false;
   bool isHovered = false;
@@ -36,7 +39,7 @@ class _RechargeableFansState extends State<RechargeableFans> {
 
       try {
         // ✅ Call your upload function
-        await uploadImageWithData(selectedOption!, productData);
+        await uploadImageWithData(productName, selectedOption!, productData);
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("✅ Product uploaded with image")),
@@ -481,7 +484,12 @@ class ProductsGrid extends StatelessWidget {
     final screenSize = MediaQuery.of(context).size;
 
     return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance.collection(selectedOption).snapshots(),
+      stream:
+          FirebaseFirestore.instance
+              .collection(productName)
+              .doc(selectedOption)
+              .collection('products')
+              .snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());

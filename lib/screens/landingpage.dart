@@ -10,6 +10,7 @@ class Landingpage extends StatefulWidget {
 }
 
 class _LandingpageState extends State<Landingpage> {
+  bool _isHovered = false;
   final List<Map<String, String>> carouselItems = [
     {
       'image': 'assets/images/handheld1.jpg',
@@ -420,7 +421,300 @@ class _LandingpageState extends State<Landingpage> {
                           ),
                         ],
                       ),
-                      SizedBox(height: 100),
+                      SizedBox(height: 10),
+                      screenSize.width > 600
+                          ? Container(
+                            padding: EdgeInsets.all(21),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(12),
+                              color: Colors.grey.shade100,
+                            ),
+                            width: 0.8 * screenSize.width,
+
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Column(
+                                  children: [
+                                    Text(
+                                      'Current offers',
+                                      style: TextStyle(
+                                        fontSize: 32,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                    Text(
+                                      'Limited Inventory. Take delivery today',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                    MouseRegion(
+                                      onEnter:
+                                          (_) =>
+                                              setState(() => _isHovered = true),
+                                      onExit:
+                                          (_) => setState(
+                                            () => _isHovered = false,
+                                          ),
+                                      child: GestureDetector(
+                                        onTap: () {
+                                          Navigator.pushNamed(
+                                            context,
+                                            '/promoPage',
+                                          );
+                                        },
+                                        child: AnimatedContainer(
+                                          duration: Duration(milliseconds: 200),
+                                          padding: EdgeInsets.symmetric(
+                                            vertical: 10,
+                                            horizontal: 15,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
+                                            color:
+                                                _isHovered
+                                                    ? Colors.grey.shade400
+                                                    : Colors.grey.shade200,
+                                          ),
+                                          child: Text(
+                                            'Learn More',
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                Image.asset('assets/images/special_promo_.png'),
+                              ],
+                            ),
+                          )
+                          : Container(
+                            padding: EdgeInsets.all(21),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(12),
+                              color: Colors.grey.shade100,
+                            ),
+                            height: 400,
+
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Column(
+                                  children: [
+                                    Text(
+                                      'Current offers',
+                                      style: TextStyle(
+                                        fontSize: 32,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                    Text(
+                                      'Limited Inventory. Take delivery today',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+
+                                    MouseRegion(
+                                      onEnter:
+                                          (_) =>
+                                              setState(() => _isHovered = true),
+                                      onExit:
+                                          (_) => setState(
+                                            () => _isHovered = false,
+                                          ),
+                                      child: GestureDetector(
+                                        onTap: () {
+                                          Navigator.pushNamed(
+                                            context,
+                                            '/promoPage',
+                                          );
+                                        },
+                                        child: AnimatedContainer(
+                                          duration: Duration(milliseconds: 200),
+                                          padding: EdgeInsets.symmetric(
+                                            vertical: 10,
+                                            horizontal: 15,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
+                                            color:
+                                                _isHovered
+                                                    ? Colors.grey.shade400
+                                                    : Colors.grey.shade200,
+                                          ),
+                                          child: Text(
+                                            'Learn More',
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                Image.asset('assets/images/special_promo_.png'),
+                              ],
+                            ),
+                          ),
+
+                      SizedBox(height: 50),
+                      screenSize.width < 800
+                          ? Container(
+                            width: screenSize.width,
+                            padding: EdgeInsets.all(12),
+
+                            decoration: BoxDecoration(
+                              color: Colors.black,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Column(
+                              children: [
+                                Text(
+                                  'Service Hours',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                                Text(
+                                  'Monday-Friday 9AM to 6PM',
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                                SizedBox(height: 50),
+                                Text(
+                                  'Phone Numbers',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                                Text(
+                                  '08037001629, 07034503300',
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                                SizedBox(height: 50),
+                                Text(
+                                  'Email',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                                Text(
+                                  'activecourage@yahoo.com',
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                                SizedBox(height: 50),
+                                Text(
+                                  'WhatsApp',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                                Text(
+                                  '08037001629, 07034503300',
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                                SizedBox(height: 50),
+                              ],
+                            ),
+                          )
+                          : Container(
+                            padding: EdgeInsets.all(12),
+                            height: 200,
+                            decoration: BoxDecoration(
+                              color: Colors.black,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Column(
+                                  children: [
+                                    Text(
+                                      'Service Hours',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                    Text(
+                                      'Monday-Friday 9AM to 6PM',
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                  ],
+                                ),
+
+                                Column(
+                                  children: [
+                                    Text(
+                                      'Phone Numbers',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                    Text(
+                                      '08037001629, 07034503300',
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                  ],
+                                ),
+                                Column(
+                                  children: [
+                                    Text(
+                                      'Email',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                    Text(
+                                      'activecourage@yahoo.com',
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                  ],
+                                ),
+                                Column(
+                                  children: [
+                                    Text(
+                                      'WhatsApp',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                    Text(
+                                      '08037001629, 07034503300',
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
                     ],
                   ),
                 ),

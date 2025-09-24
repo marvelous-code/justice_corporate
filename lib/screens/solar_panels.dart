@@ -1,11 +1,8 @@
 import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
-
 import 'package:justicecorporate/functions/upload_function.dart';
 import 'package:justicecorporate/ui/reused_widgets.dart';
 import 'dart:convert';
-import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -21,9 +18,7 @@ class _SolarPanelsState extends State<SolarPanels> {
   List<String> _solarpanelBrands = [];
   bool isClicked = false;
   bool isHovered = false;
-
   final _formKey = GlobalKey<FormState>();
-
   final TextEditingController _productNameController = TextEditingController();
   final TextEditingController _unitsController = TextEditingController();
   final TextEditingController _availabilityController = TextEditingController();
@@ -39,7 +34,7 @@ class _SolarPanelsState extends State<SolarPanels> {
 
       try {
         // ✅ Call your upload function
-        await uploadImageWithData(selectedOption!, productData);
+        await uploadImageWithData('Solar Panels', selectedOption!, productData);
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("✅ Product uploaded with image")),
@@ -240,6 +235,8 @@ class _SolarPanelsState extends State<SolarPanels> {
                                       },
                                     ),
                                   ),
+
+                                //PASTE HERE
                               ],
                             ),
                           ),

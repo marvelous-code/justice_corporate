@@ -3,6 +3,7 @@ import 'package:justicecorporate/screens/aboutus.dart';
 import 'package:justicecorporate/screens/batteries.dart';
 import 'package:justicecorporate/screens/landingpage.dart';
 import 'package:justicecorporate/screens/menu.dart';
+import 'package:justicecorporate/screens/promo_page.dart';
 import 'package:justicecorporate/screens/rechargeable_fans.dart';
 import 'package:justicecorporate/screens/solar_panels.dart';
 import 'package:justicecorporate/screens/torchlight.dart';
@@ -34,6 +35,7 @@ class MainApp extends StatelessWidget {
         '/batteries': (context) => Batteries(),
         '/recharge': (context) => RechargeableFans(),
         '/menu': (context) => Menu(),
+        '/promoPage': (context) => PromoPage(),
       },
     );
   }
