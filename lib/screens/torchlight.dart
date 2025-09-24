@@ -16,7 +16,7 @@ class Torchlight extends StatefulWidget {
 class _TorchlightState extends State<Torchlight> {
   final TextEditingController _controller = TextEditingController();
   List<String> _torchLightBrands = [];
-  bool isClicked = true;
+  bool isClicked = false;
   bool isHovered = false;
   bool absorbing = false;
   final _formKey = GlobalKey<FormState>();
@@ -64,7 +64,7 @@ class _TorchlightState extends State<Torchlight> {
 
       try {
         await uploadImageWithData('TorchLight', selectedOption!, productData);
-
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("✅ Product uploaded with image")),
         );
@@ -73,6 +73,7 @@ class _TorchlightState extends State<Torchlight> {
         _unitsController.clear();
         _availabilityController.clear();
       } catch (e) {
+        if (!mounted) return;
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text("❌ Upload failed: $e")));
@@ -107,68 +108,61 @@ class _TorchlightState extends State<Torchlight> {
     Size screenSize = MediaQuery.of(context).size;
 
     return SafeArea(
-      child: AbsorbPointer(
-        absorbing: absorbing,
-        child: Scaffold(
-          backgroundColor: Colors.white,
-          body: Column(
-            children: [
-              Header(screenSize: screenSize),
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        body: Column(
+          children: [
+            Header(screenSize: screenSize),
 
-              Text(
-                'Torch Light',
-                style: const TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.w300,
-                ),
-              ),
+            Text(
+              'Torch Light',
+              style: const TextStyle(fontSize: 32, fontWeight: FontWeight.w300),
+            ),
 
-              Expanded(
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (screenSize.width > 800)
-                      Expanded(flex: 1, child: _buildSidebar()),
+            Expanded(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (screenSize.width > 800)
+                    Expanded(flex: 1, child: _buildSidebar()),
 
-                    if (screenSize.width > 800)
-                      const VerticalDivider(thickness: 1),
+                  if (screenSize.width > 800)
+                    const VerticalDivider(thickness: 1),
 
-                    Expanded(
-                      flex: 3,
-                      child: Column(
-                        children: [
-                          if (screenSize.width < 800) _buildMobileDropdown(),
+                  Expanded(
+                    flex: 3,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        if (screenSize.width < 800) _buildSidebar(),
 
-                          Expanded(
-                            child: Padding(
-                              padding: const EdgeInsets.all(12.0),
-                              child:
-                                  selectedOption == null
-                                      ? const Center(
-                                        child: Text(
-                                          'Please select torch brand',
-                                        ),
-                                      )
-                                      : ProductsGrid(
-                                        selectedOption: selectedOption!,
-                                        formKey: _formKey,
-                                        productNameController:
-                                            _productNameController,
-                                        unitsController: _unitsController,
-                                        availabilityController:
-                                            _availabilityController,
-                                        onAddProduct: _addProduct,
-                                      ),
-                            ),
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.all(12.0),
+                            child:
+                                selectedOption == null
+                                    ? const Center(
+                                      child: Text('Please select torch brand'),
+                                    )
+                                    : ProductsGrid(
+                                      selectedOption: selectedOption!,
+                                      formKey: _formKey,
+                                      productNameController:
+                                          _productNameController,
+                                      unitsController: _unitsController,
+                                      availabilityController:
+                                          _availabilityController,
+                                      onAddProduct: _addProduct,
+                                    ),
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -179,7 +173,7 @@ class _TorchlightState extends State<Torchlight> {
       child: Padding(
         padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             MouseRegion(
               onEnter: (_) => setState(() => isHovered = true),
@@ -188,7 +182,7 @@ class _TorchlightState extends State<Torchlight> {
                 onTap: () => setState(() => isClicked = !isClicked),
                 child: AnimatedContainer(
                   padding: const EdgeInsets.symmetric(
-                    vertical: 5,
+                    vertical: !kIsWeb ? 0 : 5,
                     horizontal: 5,
                   ),
                   duration: const Duration(milliseconds: 400),
@@ -213,6 +207,41 @@ class _TorchlightState extends State<Torchlight> {
                         angle: isClicked ? math.pi / 2 : math.pi * 1.5,
                         child: const Icon(Icons.arrow_back_ios, size: 15),
                       ),
+                      if (!kIsWeb)
+                        IconButton(
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder:
+                                  (context) => AlertDialog(
+                                    title: const Text("Add Brand"),
+                                    content: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        TextField(
+                                          controller: _controller,
+                                          decoration: const InputDecoration(
+                                            labelText: "Enter brand",
+                                            border: OutlineInputBorder(),
+                                          ),
+                                        ),
+                                        const SizedBox(height: 10),
+                                        ElevatedButton(
+                                          onPressed: () {
+                                            _addItem();
+                                            Navigator.of(context).pop();
+                                          },
+                                          child: const Text(
+                                            "Add TorchLight Brand",
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                            );
+                          },
+                          icon: const Icon(Icons.add, size: 20),
+                        ),
                     ],
                   ),
                 ),
@@ -365,17 +394,21 @@ class ProductsGrid extends StatelessWidget {
             crossAxisSpacing: 10,
             mainAxisSpacing: 10,
           ),
-          itemCount: products.length,
+          itemCount: products.length + 1,
           itemBuilder: (context, index) {
-            final product = products[index].data() as Map<String, dynamic>;
+            final product =
+                index != products.length
+                    ? products[index].data() as Map<String, dynamic>
+                    : null;
 
             Uint8List? imageBytes;
-            if (product['imageBase64'] != null) {
-              imageBytes = base64Decode(product['imageBase64']);
+            if (product?['imageBase64'] != null) {
+              imageBytes = base64Decode(product?['imageBase64']);
             }
 
-            return (index == products.length - 1 && !kIsWeb)
-                ? _buildEmptyState(context)
+            //return (index == products.length && !kIsWeb)
+            return (index == products.length)
+                ? (!kIsWeb ? _buildEmptyState(context) : null)
                 : Card(
                   color: Colors.white,
                   shape: RoundedRectangleBorder(
@@ -409,15 +442,15 @@ class ProductsGrid extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              product['productName'] ?? 'Unnamed',
+                              product?['productName'] ?? 'Unnamed',
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
                             const SizedBox(height: 4),
-                            Text("${product['unitsInCarton'] ?? '0'} units"),
+                            Text("${product?['unitsInCarton'] ?? '0'} units"),
                             Text(
-                              product['availability'] ?? '',
+                              product?['availability'] ?? '',
                               style: const TextStyle(color: Colors.green),
                             ),
                           ],
