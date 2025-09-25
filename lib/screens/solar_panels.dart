@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:justicecorporate/functions/loadBrandsFromFirestore.dart';
 import 'package:justicecorporate/functions/upload_function.dart';
 import 'package:justicecorporate/ui/reused_widgets.dart';
 import 'dart:convert';
@@ -22,6 +23,51 @@ class _SolarPanelsState extends State<SolarPanels> {
   final TextEditingController _productNameController = TextEditingController();
   final TextEditingController _unitsController = TextEditingController();
   final TextEditingController _availabilityController = TextEditingController();
+  String? selectedOption;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadBrandsFromFirestore();
+  }
+
+  //This function loads the torchlight brands from database.
+  Future<void> _loadBrandsFromFirestore() async {
+    final brands = await FirestoreService.getListFromFirestore(
+      collection: "solarpanelBrands",
+      doc: "brandsList",
+      field: "brands",
+    );
+
+    if (!mounted) return; // avoid calling setState after widget disposal
+
+    setState(() {
+      _solarpanelBrands = brands;
+      selectedOption = brands.isNotEmpty ? brands[0] : null;
+    });
+  }
+
+  /*Future<void> _loadBrandsFromFirestore() async {
+    try {
+      final snapshot =
+          await FirebaseFirestore.instance
+              .collection("solarpanelBrands")
+              .doc("brandsList")
+              .get();
+
+      if (snapshot.exists) {
+        final data = snapshot.data();
+        if (data != null && data["brands"] is List) {
+          setState(() {
+            _solarpanelBrands = List<String>.from(data["brands"]);
+            selectedOption = _solarpanelBrands[0];
+          });
+        }
+      }
+    } catch (e) {
+      print("❌ Failed to load brands: $e");
+    }
+  }*/
 
   Future<void> _addProduct() async {
     if (_formKey.currentState!.validate()) {
@@ -76,35 +122,6 @@ class _SolarPanelsState extends State<SolarPanels> {
   }
 
   @override
-  void initState() {
-    super.initState();
-    _loadBrandsFromFirestore();
-  }
-
-  Future<void> _loadBrandsFromFirestore() async {
-    try {
-      final snapshot =
-          await FirebaseFirestore.instance
-              .collection("solarpanelBrands")
-              .doc("brandsList")
-              .get();
-
-      if (snapshot.exists) {
-        final data = snapshot.data();
-        if (data != null && data["brands"] is List) {
-          setState(() {
-            _solarpanelBrands = List<String>.from(data["brands"]);
-            selectedOption = _solarpanelBrands[0];
-          });
-        }
-      }
-    } catch (e) {
-      print("❌ Failed to load brands: $e");
-    }
-  }
-
-  String? selectedOption;
-  @override
   Widget build(BuildContext context) {
     Size screenSize = MediaQuery.of(context).size;
     return SafeArea(
@@ -114,333 +131,29 @@ class _SolarPanelsState extends State<SolarPanels> {
           children: [
             // Header Widget
             Header(screenSize: screenSize),
-            //Page Title
+            //Title of Page
             Text(
               'Solar Panel Kits',
               style: TextStyle(fontSize: 32, fontWeight: FontWeight.w300),
             ),
 
-            // Body with inventory + divider + grid
+            //Body of Page
             Expanded(
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (screenSize.width > 800)
-                    Expanded(
-                      flex: 1,
-                      child: Container(
-                        height: 1000,
-                        child: SingleChildScrollView(
-                          child: Padding(
-                            padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                MouseRegion(
-                                  onEnter: (_) {
-                                    setState(() {
-                                      isHovered = !isHovered;
-                                    });
-                                  },
-                                  onExit: (_) {
-                                    setState(() {
-                                      isHovered = !isHovered;
-                                    });
-                                  },
-                                  child: GestureDetector(
-                                    onTap: () {
-                                      setState(() {
-                                        isClicked = !isClicked;
-                                      });
-                                    },
-                                    child: AnimatedContainer(
-                                      padding: EdgeInsets.symmetric(
-                                        vertical: 5,
-                                        horizontal: 5,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color:
-                                            isHovered
-                                                ? Colors.grey.shade400
-                                                : Colors.transparent,
-                                        border: Border.all(width: 1),
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      duration: Duration(milliseconds: 400),
+                  if (screenSize.width >
+                      800) //this only shows when screen is desktop size
+                    Expanded(flex: 1, child: _brandsListToggle()),
 
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        children: [
-                                          Text(
-                                            selectedOption ??
-                                                'Solar Panel Brands',
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              letterSpacing: 1,
-                                              fontSize: 14,
-                                            ),
-                                          ),
-                                          SizedBox(width: 100),
-                                          Transform.rotate(
-                                            angle:
-                                                isClicked
-                                                    ? math.pi / 2
-                                                    : math.pi * 1.5,
-                                            child: Icon(
-                                              Icons.arrow_back_ios,
-                                              size: 15,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ),
-
-                                SizedBox(height: 3),
-                                if (isClicked)
-                                  SizedBox(
-                                    height: 300,
-                                    child: ListView.builder(
-                                      shrinkWrap: true,
-                                      itemCount: _solarpanelBrands.length,
-                                      itemBuilder: (context, index) {
-                                        final torchBrand =
-                                            _solarpanelBrands[index];
-                                        return ListTile(
-                                          contentPadding: EdgeInsets.all(0),
-                                          title: Text(torchBrand),
-                                          leading: Radio<String>(
-                                            fillColor: WidgetStateProperty.all(
-                                              Colors.black,
-                                            ),
-                                            value: torchBrand,
-                                            groupValue: selectedOption,
-                                            onChanged: (value) {
-                                              setState(() {
-                                                selectedOption = value;
-                                              });
-                                            },
-                                          ),
-                                          onTap: () {
-                                            setState(() {
-                                              selectedOption = torchBrand;
-                                              print(selectedOption);
-                                            });
-                                          },
-                                        );
-                                      },
-                                    ),
-                                  ),
-
-                                //PASTE HERE
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  if (screenSize.width > 800)
-                    Divider(thickness: 1, height: double.maxFinite),
-                  Container(
-                    height: double.infinity,
-                    color: Colors.black,
-                    width: 2,
-                  ),
+                  if (screenSize.width >
+                      800) //this only shows when screen is desktop size
+                    const VerticalDivider(thickness: 1),
                   Expanded(
                     flex: 3,
                     child: Column(
                       children: [
-                        if (screenSize.width < 800)
-                          MouseRegion(
-                            onEnter: (_) {
-                              setState(() {
-                                isHovered = !isHovered;
-                              });
-                            },
-                            onExit: (_) {
-                              setState(() {
-                                isHovered = !isHovered;
-                              });
-                            },
-                            child: GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  isClicked = !isClicked;
-                                });
-                              },
-                              child: AnimatedContainer(
-                                padding: EdgeInsets.symmetric(
-                                  vertical: 5,
-                                  horizontal: 5,
-                                ),
-                                decoration: BoxDecoration(
-                                  color:
-                                      isHovered
-                                          ? Colors.grey.shade400
-                                          : Colors.transparent,
-                                  border: Border.all(width: 1),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                duration: Duration(milliseconds: 400),
-
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      selectedOption ?? 'SolarPanel Brands',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        letterSpacing: 1,
-                                        fontSize: 14,
-                                      ),
-                                    ),
-                                    SizedBox(width: 100),
-                                    Transform.rotate(
-                                      angle:
-                                          isClicked
-                                              ? math.pi / 2
-                                              : math.pi * 1.5,
-                                      child: Icon(
-                                        Icons.arrow_back_ios,
-                                        size: 15,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-
-                        if (screenSize.width < 800 && isClicked)
-                          Expanded(
-                            // 👈 give inventory scrollable space
-                            child: SingleChildScrollView(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const SizedBox(height: 3),
-                                  ListView.builder(
-                                    shrinkWrap: true,
-                                    physics:
-                                        NeverScrollableScrollPhysics(), // 👈 avoid nested scrolls
-                                    itemCount: _solarpanelBrands.length,
-                                    itemBuilder: (context, index) {
-                                      final torchBrand =
-                                          _solarpanelBrands[index];
-                                      return ListTile(
-                                        title: Text(torchBrand),
-                                        leading: Radio<String>(
-                                          fillColor: WidgetStateProperty.all(
-                                            Colors.black,
-                                          ),
-                                          value: torchBrand,
-                                          groupValue: selectedOption,
-                                          onChanged: (value) {
-                                            setState(() {
-                                              selectedOption = value;
-                                            });
-                                          },
-                                        ),
-                                        onTap: () {
-                                          setState(() {
-                                            selectedOption = torchBrand;
-                                            print(selectedOption);
-                                          });
-                                        },
-                                      );
-                                    },
-                                  ),
-                                  const SizedBox(height: 10),
-                                  // input + add button
-                                  if (!kIsWeb)
-                                    Column(
-                                      children: [
-                                        TextField(
-                                          controller: _controller,
-                                          decoration: InputDecoration(
-                                            labelText: "Enter brand",
-                                            border: OutlineInputBorder(),
-                                          ),
-                                        ),
-                                        const SizedBox(height: 10),
-                                        ElevatedButton(
-                                          onPressed: _addItem,
-                                          child: const Text(
-                                            "Add TorchLight Brand",
-                                          ),
-                                        ),
-                                        const SizedBox(height: 20),
-                                        Padding(
-                                          padding: const EdgeInsets.all(16.0),
-                                          child: Form(
-                                            key: _formKey,
-                                            child: Column(
-                                              children: [
-                                                TextFormField(
-                                                  controller:
-                                                      _productNameController,
-                                                  decoration: InputDecoration(
-                                                    labelText: "Product Name",
-                                                  ),
-                                                  validator:
-                                                      (value) =>
-                                                          value == null ||
-                                                                  value.isEmpty
-                                                              ? "Enter product name"
-                                                              : null,
-                                                ),
-                                                const SizedBox(height: 10),
-                                                TextFormField(
-                                                  controller: _unitsController,
-                                                  decoration: InputDecoration(
-                                                    labelText:
-                                                        "No. of Units in Carton",
-                                                  ),
-                                                  validator:
-                                                      (value) =>
-                                                          value == null ||
-                                                                  value.isEmpty
-                                                              ? "Enter units"
-                                                              : null,
-                                                ),
-                                                const SizedBox(height: 10),
-                                                TextFormField(
-                                                  controller:
-                                                      _availabilityController,
-                                                  decoration: InputDecoration(
-                                                    labelText: "Availability",
-                                                  ),
-                                                  validator:
-                                                      (value) =>
-                                                          value == null ||
-                                                                  value.isEmpty
-                                                              ? "Enter availability"
-                                                              : null,
-                                                ),
-                                                const SizedBox(height: 20),
-                                                ElevatedButton(
-                                                  onPressed: _addProduct,
-                                                  child: const Text(
-                                                    "Add Product",
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-
-                                  // form
-                                ],
-                              ),
-                            ),
-                          ),
+                        if (screenSize.width < 800) _brandsListToggle(),
 
                         // ✅ Products Grid takes remaining space
                         Expanded(
@@ -453,6 +166,13 @@ class _SolarPanelsState extends State<SolarPanels> {
                                     )
                                     : ProductsGrid(
                                       selectedOption: selectedOption!,
+                                      formKey: _formKey,
+                                      productNameController:
+                                          _productNameController,
+                                      unitsController: _unitsController,
+                                      availabilityController:
+                                          _availabilityController,
+                                      onAddProduct: _addProduct,
                                     ),
                           ),
                         ),
@@ -467,25 +187,154 @@ class _SolarPanelsState extends State<SolarPanels> {
       ),
     );
   }
+
+  Widget _brandsListToggle() {
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            MouseRegion(
+              onEnter: (_) => setState(() => isHovered = true),
+              onExit: (_) => setState(() => isHovered = false),
+              child: GestureDetector(
+                onTap: () => setState(() => isClicked = !isClicked),
+                child: AnimatedContainer(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: !kIsWeb ? 0 : 5,
+                    horizontal: 5,
+                  ),
+                  duration: const Duration(milliseconds: 400),
+                  decoration: BoxDecoration(
+                    color:
+                        isHovered ? Colors.grey.shade400 : Colors.transparent,
+                    border: Border.all(width: 1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        selectedOption ?? 'Solar Panel Brands',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
+                      ),
+                      const SizedBox(width: 100),
+                      Transform.rotate(
+                        angle: isClicked ? math.pi / 2 : math.pi * 1.5,
+                        child: const Icon(Icons.arrow_back_ios, size: 15),
+                      ),
+                      if (!kIsWeb)
+                        IconButton(
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder:
+                                  (context) => AlertDialog(
+                                    title: const Text("Add Brand"),
+                                    content: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        TextField(
+                                          controller: _controller,
+                                          decoration: const InputDecoration(
+                                            labelText: "Enter brand",
+                                            border: OutlineInputBorder(),
+                                          ),
+                                        ),
+                                        const SizedBox(height: 10),
+                                        ElevatedButton(
+                                          onPressed: () {
+                                            _addItem();
+                                            Navigator.of(context).pop();
+                                          },
+                                          child: const Text(
+                                            "Add Solar Panel Brand",
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                            );
+                          },
+                          icon: const Icon(Icons.add, size: 20),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 3),
+            if (isClicked)
+              SizedBox(
+                height: 300,
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: _solarpanelBrands.length,
+                  itemBuilder: (context, index) {
+                    final torchBrand = _solarpanelBrands[index];
+                    return ListTile(
+                      title: Text(torchBrand),
+                      leading: Radio<String>(
+                        value: torchBrand,
+                        groupValue: selectedOption,
+                        onChanged: (value) {
+                          setState(() {
+                            selectedOption = value;
+                          });
+                        },
+                      ),
+                      onTap: () => setState(() => selectedOption = torchBrand),
+                    );
+                  },
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 class ProductsGrid extends StatelessWidget {
   final String selectedOption;
+  final GlobalKey<FormState> formKey;
+  final TextEditingController productNameController;
+  final TextEditingController unitsController;
+  final TextEditingController availabilityController;
+  final Future<void> Function() onAddProduct;
 
-  const ProductsGrid({super.key, required this.selectedOption});
+  const ProductsGrid({
+    super.key,
+    required this.selectedOption,
+    required this.formKey,
+    required this.productNameController,
+    required this.unitsController,
+    required this.availabilityController,
+    required this.onAddProduct,
+  });
 
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
 
     return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance.collection(selectedOption).snapshots(),
+      stream:
+          FirebaseFirestore.instance
+              .collection('Solar Panels')
+              .doc(selectedOption)
+              .collection('products')
+              .snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         }
+
         if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-          return const Center(child: Text("No products uploaded yet"));
+          return _buildEmptyState(context);
         }
 
         final products = snapshot.data!.docs;
@@ -497,78 +346,160 @@ class ProductsGrid extends StatelessWidget {
             mainAxisSpacing: 10,
             //childAspectRatio: 0,
           ),
-          itemCount: products.length,
+          itemCount: products.length + 1,
           itemBuilder: (context, index) {
-            final product = products[index].data() as Map<String, dynamic>;
+            final product =
+                index != products.length
+                    ? products[index].data() as Map<String, dynamic>
+                    : null;
 
             // Decode base64 back to image
             Uint8List? imageBytes;
-            if (product['imageBase64'] != null) {
-              imageBytes = base64Decode(product['imageBase64']);
+            if (product?['imageBase64'] != null) {
+              imageBytes = base64Decode(product?['imageBase64']);
             }
 
-            return Card(
-              color: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              elevation: 4,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Expanded(
-                    child: ClipRRect(
-                      borderRadius: const BorderRadius.vertical(
-                        top: Radius.circular(12),
-                      ),
-                      child:
-                          imageBytes != null
-                              ? Image.memory(
-                                imageBytes,
-                                fit: BoxFit.contain,
-
-                                width: double.maxFinite,
-                              )
-                              : const Icon(Icons.image_not_supported, size: 80),
-                    ),
+            return (index == products.length)
+                ? (!kIsWeb ? _buildEmptyState(context) : null)
+                : Card(
+                  color: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 4.0,
-                      horizontal: 6.0,
-                    ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          product['productName'] ?? 'Unnamed',
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          "${product['price'] ?? '0'}",
-                          style: const TextStyle(
-                            color: Colors.green,
-                            fontSize: 14,
+                  elevation: 4,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: ClipRRect(
+                          borderRadius: const BorderRadius.vertical(
+                            top: Radius.circular(12),
                           ),
+                          child:
+                              imageBytes != null
+                                  ? Image.memory(
+                                    imageBytes,
+                                    fit: BoxFit.contain,
+                                    width: double.infinity,
+                                  )
+                                  : const Icon(
+                                    Icons.image_not_supported,
+                                    size: 80,
+                                  ),
                         ),
-                        Text(
-                          product['availability'],
-                          style: TextStyle(color: Colors.black),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(6.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              product?['productName'] ?? 'Unnamed',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text("${product?['unitsInCarton'] ?? '0'} units"),
+                            Text(
+                              product?['availability'] ?? '',
+                              style: const TextStyle(color: Colors.green),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            );
+                );
           },
         );
       },
+    );
+  }
+
+  Widget _buildEmptyState(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Card(
+            color: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            elevation: 4,
+            child: IconButton(
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder:
+                      (context) => AlertDialog(
+                        title: const Text("Add Product"),
+                        content: Form(
+                          key: formKey,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              TextFormField(
+                                controller: productNameController,
+                                decoration: const InputDecoration(
+                                  labelText: "Product Name",
+                                ),
+                                validator:
+                                    (value) =>
+                                        value == null || value.isEmpty
+                                            ? "Enter product name"
+                                            : null,
+                              ),
+                              const SizedBox(height: 10),
+                              TextFormField(
+                                controller: unitsController,
+                                decoration: const InputDecoration(
+                                  labelText: "No. of Units in Carton",
+                                ),
+                                validator:
+                                    (value) =>
+                                        value == null || value.isEmpty
+                                            ? "Enter units"
+                                            : null,
+                              ),
+                              const SizedBox(height: 10),
+                              TextFormField(
+                                controller: availabilityController,
+                                decoration: const InputDecoration(
+                                  labelText: "Availability",
+                                ),
+                                validator:
+                                    (value) =>
+                                        value == null || value.isEmpty
+                                            ? "Enter availability"
+                                            : null,
+                              ),
+                              const SizedBox(height: 20),
+                              ElevatedButton(
+                                onPressed: () async {
+                                  if (formKey.currentState!.validate()) {
+                                    await onAddProduct();
+                                    Navigator.of(
+                                      context,
+                                    ).pop(); // only closes if valid
+                                  }
+                                },
+                                child: const Text("Add Product"),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                );
+              },
+              icon: const Icon(Icons.add),
+            ),
+          ),
+          const SizedBox(height: 10),
+          const Text('Upload Products'),
+        ],
+      ),
     );
   }
 }

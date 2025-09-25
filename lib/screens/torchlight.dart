@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:justicecorporate/functions/loadBrandsFromFirestore.dart';
 import 'package:justicecorporate/functions/upload_function.dart';
 import 'package:justicecorporate/ui/reused_widgets.dart';
 
@@ -18,7 +19,6 @@ class _TorchlightState extends State<Torchlight> {
   List<String> _torchLightBrands = [];
   bool isClicked = false;
   bool isHovered = false;
-  bool absorbing = false;
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _productNameController = TextEditingController();
   final TextEditingController _unitsController = TextEditingController();
@@ -31,27 +31,20 @@ class _TorchlightState extends State<Torchlight> {
     _loadBrandsFromFirestore();
   }
 
+  //This function loads the torchlight brands from database.
   Future<void> _loadBrandsFromFirestore() async {
-    try {
-      final snapshot =
-          await FirebaseFirestore.instance
-              .collection("torchLightBrands")
-              .doc("brandsList")
-              .get();
+    final brands = await FirestoreService.getListFromFirestore(
+      collection: "torchLightBrands",
+      doc: "brandsList",
+      field: "brands",
+    );
 
-      if (snapshot.exists) {
-        final data = snapshot.data();
-        if (data != null && data["brands"] is List) {
-          setState(() {
-            _torchLightBrands = List<String>.from(data["brands"]);
-            selectedOption =
-                _torchLightBrands.isNotEmpty ? _torchLightBrands[0] : null;
-          });
-        }
-      }
-    } catch (e) {
-      print("❌ Failed to load brands: $e");
-    }
+    if (!mounted) return; // avoid calling setState after widget disposal
+
+    setState(() {
+      _torchLightBrands = brands;
+      selectedOption = brands.isNotEmpty ? brands[0] : null;
+    });
   }
 
   Future<void> _addProduct() async {
@@ -112,21 +105,26 @@ class _TorchlightState extends State<Torchlight> {
         backgroundColor: Colors.white,
         body: Column(
           children: [
+            //Header Row
             Header(screenSize: screenSize),
 
+            //Title of Page
             Text(
               'Torch Light',
               style: const TextStyle(fontSize: 32, fontWeight: FontWeight.w300),
             ),
 
+            //Body of Page
             Expanded(
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (screenSize.width > 800)
-                    Expanded(flex: 1, child: _buildSidebar()),
+                  if (screenSize.width >
+                      800) //this only shows when screen is desktop size
+                    Expanded(flex: 1, child: _brandsListToggle()),
 
-                  if (screenSize.width > 800)
+                  if (screenSize.width >
+                      800) //this only shows when screen is desktop size
                     const VerticalDivider(thickness: 1),
 
                   Expanded(
@@ -134,7 +132,7 @@ class _TorchlightState extends State<Torchlight> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        if (screenSize.width < 800) _buildSidebar(),
+                        if (screenSize.width < 800) _brandsListToggle(),
 
                         Expanded(
                           child: Padding(
@@ -168,7 +166,7 @@ class _TorchlightState extends State<Torchlight> {
     );
   }
 
-  Widget _buildSidebar() {
+  Widget _brandsListToggle() {
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
@@ -273,75 +271,6 @@ class _TorchlightState extends State<Torchlight> {
                 ),
               ),
           ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildMobileDropdown() {
-    return MouseRegion(
-      onEnter: (_) => setState(() => isHovered = true),
-      onExit: (_) => setState(() => isHovered = false),
-      child: GestureDetector(
-        onTap: () => setState(() => isClicked = !isClicked),
-        child: AnimatedContainer(
-          padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 5),
-          duration: const Duration(milliseconds: 400),
-          decoration: BoxDecoration(
-            color: isHovered ? Colors.grey.shade400 : Colors.transparent,
-            border: Border.all(width: 1),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                selectedOption ?? 'TorchLight Brands',
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 14,
-                ),
-              ),
-              const SizedBox(width: 100),
-              Transform.rotate(
-                angle: isClicked ? math.pi / 2 : math.pi * 1.5,
-                child: const Icon(Icons.arrow_back_ios, size: 15),
-              ),
-              if (!kIsWeb)
-                IconButton(
-                  onPressed: () {
-                    showDialog(
-                      context: context,
-                      builder:
-                          (context) => AlertDialog(
-                            title: const Text("Add Brand"),
-                            content: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                TextField(
-                                  controller: _controller,
-                                  decoration: const InputDecoration(
-                                    labelText: "Enter brand",
-                                    border: OutlineInputBorder(),
-                                  ),
-                                ),
-                                const SizedBox(height: 10),
-                                ElevatedButton(
-                                  onPressed: () {
-                                    _addItem();
-                                    Navigator.of(context).pop();
-                                  },
-                                  child: const Text("Add TorchLight Brand"),
-                                ),
-                              ],
-                            ),
-                          ),
-                    );
-                  },
-                  icon: const Icon(Icons.add, size: 20),
-                ),
-            ],
-          ),
         ),
       ),
     );
